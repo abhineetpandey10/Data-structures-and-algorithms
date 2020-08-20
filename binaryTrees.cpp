@@ -44,80 +44,30 @@ public:
         if(parent->data>n) parent->left=newNode;
         if(parent->data<n) parent->right=newNode;
     }
-    /*void findIOS(node *&ios, node *&parentOfIOS)
+    void remove(int key){remove(key,root);}
+    node *findMin(node *_root)
     {
-        while(ios->left!=nullptr)
-        {
-            parentOfIOS=ios;
-            ios=ios->left;
-        }
-    }*/
-    void remove(int key)
+        if(_root==nullptr) return nullptr;
+        if(_root->left==nullptr) return _root;
+        return findMin(_root->left);
+    }
+    void remove(int key,node *&_root)
     {
-        node *curr=root,*parent=nullptr;
-        //search the node which contains the given key
-        while(curr!=nullptr && curr->data!=key)
-        {
-            parent=curr;
-            if(curr->data>key) curr=curr->left;
-            else if(curr->data<key) curr=curr->right;
-        }
-        if(curr==nullptr) //tree does not contain the given value
-        {
-            cout<<"Key not found\n";
+        if(_root==nullptr)//key not found
             return;
-        }
-        //@IMPORTANT
-        /*do correction for deletion from root*/
-        else if(curr->left==nullptr && curr->right==nullptr) //the node containing the given value is a leaf
+        else if(_root->data<key) remove(key,_root->right);
+        else if(_root->data>key) remove(key,_root->left);
+        else if(_root->left!=nullptr && _root->right!=nullptr) //both children
         {
-            if(parent!=nullptr)
-            {
-                if(parent->left==curr) parent->left=nullptr; //if the node to be deleted is the left child of its parent
-                else if(parent->right==curr) parent->right=nullptr; //if the node to be deleted is the left child of its parent
-            }
-            delete curr;
+            _root->data=findMin(_root->right)->data;
+            remove(_root->data,_root->right);
         }
-        else if(curr->left!=nullptr && curr->right==nullptr) //the the node containing the given value has only the left child
+        else
         {
-            if(parent!=nullptr)
-            {
-                if(parent->left==curr) //if the node to be deleted id the left child of its parent
-                    parent->left=curr->left;
-                else if(parent->right==curr) // if the ndoe to be deleted is the right child of its parent
-                    parent->right=curr->left;
-            }
-            curr->left=nullptr;
-            delete curr;
-        }
-        else if(curr->left!=nullptr && curr->right==nullptr) //the the node containing the given value has only the right child
-        {
-            if(parent!=nullptr)
-            {
-                if(parent->left==curr) //if the node to be deleted id the left child of its parent
-                    parent->left=curr->right;
-                else if(parent->right==curr) // if the ndoe to be deleted is the right child of its parent
-                    parent->right=curr->right;
-            }
-            curr->right=nullptr;
-            delete curr;
-        }
-        else if(curr->left!=nullptr && curr->right!=nullptr) //the node containg the given value has both the children
-        {
-            node *&ios=curr->right,*parentOfIOS=curr;
-            while(ios->left!=nullptr)
-            {
-                parentOfIOS=ios;
-                ios=ios->left;
-            }
-            int tmp=ios->data;
-            ios->data=curr->data;
-            curr->data=tmp;
-            if(parentOfIOS==curr) //the right node of the node to be deleted is a leaf
-                parentOfIOS->right=nullptr;
-            else if(parentOfIOS!=nullptr)
-                parentOfIOS->left=nullptr;
-            delete ios;
+            node* oldNode=_root;
+            if(_root->left!=nullptr) _root=_root->left;
+            else _root=_root->right;
+            delete oldNode;
         }
     }
     void inorder()
