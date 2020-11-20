@@ -1,0 +1,82 @@
+#include<iostream>
+using std::cin;
+using std::cout;
+#include<utility>
+using std::pair;
+#include<algorithm>
+using std::sort;
+#include<cmath>
+#include<vector>
+using std::vector;
+pair<int,int> vertex, baseline_end;
+double calculateAngle(pair<int,int> a,pair<int,int> b,pair<int,int> v)
+{
+    int avi=a.first-v.first;
+    int avj=a.second-v.second;
+    int bvi=b.first-v.first;
+    int bvj=b.second-v.second;
+    double num=(bvi*avj)-(bvj*avi);
+    double den=pow(pow(avi+avj,2),0.5)*pow(pow(bvi+bvj,2),0.5);
+    double angle=asin(num/den);
+    return angle;
+}
+double calcDistance(pair<int,int> a)
+{
+    return pow(pow(a.second-vertex.second,2)+pow(a.first-vertex.first,2),0.5);
+}
+bool compareByAngle(pair<int,int> a, pair<int,int> b)
+{
+    double result=calculateAngle(a,baseline_end,vertex)-calculateAngle(b,baseline_end,vertex);
+    if(result<0) return true;
+    else if(result>0) return false;
+    else return calcDistance(a)<calcDistance(b);
+}
+int crossProduct(pair<int,int> a,pair<int,int> b,pair<int,int> c)
+{
+    return (b.first-a.first)*(c.second-b.second)-(b.second-a.second)*(c.first-b.first);
+}
+void grahamScanAlgorithm(pair<int,int> points[],int n)
+{
+    pair<int,int> lowermost=points[0];
+    for(int i=0;i<n;i++) 
+        if(points[i].second<lowermost.second)
+            lowermost=points[i];
+    vertex=lowermost;
+    pair<int,int> tmp;
+    tmp.first=lowermost.first+3;
+    tmp.second=lowermost.second;
+    baseline_end=tmp;
+    sort(points,points+n,compareByAngle);
+    //cout<<"Sorted array is: ";
+    //for(int i=0;i<n;i++)
+    //    cout<<points[i].first<<' '<<points[i].second<<'\n';
+    vector<pair<int,int>> hull;
+    hull.push_back(points[0]);
+    hull.push_back(points[1]);
+    int i=2;
+    while(i!=n)
+    {
+        if(crossProduct(hull[hull.size()-2],hull[hull.size()-1],points[i])>=0)
+        {
+            hull.push_back(points[i]);
+            i++;
+        }
+        else
+            hull.pop_back();
+    }
+    for(int i=0;i<hull.size();i++)
+        cout<<hull[i].first<<' '<<hull[i].second<<'\n';
+}
+int main()
+{
+    int t;
+    cin>>t;
+    while(t--)
+    {
+        int n;
+        cin>>n;
+        pair<int,int> a[n];
+        for(int i=0;i<n;i++) cin>>a[i].first>>a[i].second;
+        grahamScanAlgorithm(a,n);
+    }
+}
