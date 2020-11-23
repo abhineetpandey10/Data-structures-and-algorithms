@@ -45,7 +45,7 @@ void kmp(string s,string p)
             cout<<"Pattern Found at "<<i-j<<'\n';
             j=lps[j-1];
         }
-        else if(s[i]!=s[j])
+        else if(s[i]!=p[j])
         {
             if(j!=0) j=lps[j-1];
             else i++;
