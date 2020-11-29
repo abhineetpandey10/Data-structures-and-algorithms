@@ -1,0 +1,115 @@
+#include<iostream>
+using std::cin;
+using std::cout;
+#include<vector>
+using std::vector;
+#include<stack>
+using std::stack;
+#include<cstring>
+class graph
+{
+public:
+    vector<int> *adjList,*revAdjList;
+    int numVertices;
+    graph(int n)
+    {
+        numVertices=n;
+        adjList=new vector<int>[n];
+        revAdjList=new vector<int>[n];
+    }
+    void addEdge(int start,int end)
+    {
+        adjList[start].push_back(end);
+        revAdjList[end].push_back(start);
+    }
+    stack<int> dfs()
+    {
+        stack<int> scc,dfs_stack;
+        bool visited[numVertices];
+        memset(visited,0,sizeof(visited));
+        dfs_stack.push(0);
+        visited[0]=true;
+        cout<<"DFS traversal of the graph:\n";
+        cout<<0<<' ';
+        while(!dfs_stack.empty())
+        {
+            bool pushed=false;
+            int v=dfs_stack.top();
+            for(int i=0;i<adjList[v].size();i++)
+            {
+                if(!visited[adjList[v][i]])
+                {
+                    pushed=true;
+                    visited[adjList[v][i]]=true;
+                    cout<<adjList[v][i]<<' ';
+                    dfs_stack.push(adjList[v][i]);
+                    break;
+                }
+            }
+            if(!pushed)
+            {
+                scc.push(v);
+                dfs_stack.pop();
+            }
+        }
+        cout<<'\n';
+        return scc;
+    }
+    void kosaraju()
+    {
+        stack<int> scc=dfs();
+        bool visited[numVertices];
+        memset(visited,0,sizeof(visited));
+        cout<<"The connected components are:\n";
+        while(!scc.empty())
+        {
+            stack<int> s;
+            s.push(scc.top());
+            scc.pop();
+            //visited[s.top()]=true;
+            if(!visited[s.top()])
+                cout<<s.top()<<' ';
+            visited[s.top()]=true;
+            bool printed=false;
+            while(!s.empty())
+            {
+                bool pushed=false;
+                for(int i=0;i<revAdjList[s.top()].size();i++)
+                {
+                    if(!visited[revAdjList[s.top()][i]])
+                    {
+                        visited[revAdjList[s.top()][i]]=true;
+                        pushed=true;
+                        cout<<revAdjList[s.top()][i]<<' ';
+                        s.push(revAdjList[s.top()][i]);
+                        printed=true;
+                        break;
+                    }
+                }
+                if(!pushed)
+                {
+                    s.pop();
+                }
+            }
+            if(printed) cout<<'\n';
+        }
+    }
+};
+int main()
+{
+    cout<<"Enter the number if vertices:\n";
+    int v;
+    cin>>v;
+    graph g(v);
+    cout<<"Enter the number of edges:\n";
+    int e;
+    cin>>e;
+    cout<<"Enter the start and end points of each directed edge \n (All values must be between 0 and "<<e-1<<" ) :\n";
+    while(e--)
+    {
+        int start,end;
+        cin>>start>>end;
+        g.addEdge(start,end);
+    }
+    g.kosaraju();
+}
