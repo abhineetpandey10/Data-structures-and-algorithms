@@ -1,0 +1,110 @@
+#include<iostream>
+using std::cin;
+using std::cout;
+#include<vector>
+using std::vector;
+#include<algorithm>
+using std::sort;
+class edge
+{
+public:
+    int src,dest,weight;
+    edge(int a,int b,int wt)
+    {
+        src=a;
+        dest=b;
+        weight=wt;
+    }
+};
+class disjoint_set
+{
+public:
+    int arrSize;
+    int *parent,*rank;
+    disjoint_set(int n)
+    {
+        arrSize=n;
+        parent=new int[n];
+        rank=new int[n];
+        for(int i=0;i<n;i++)
+        {
+            parent[i]=i;
+            rank[i]=0;
+        }
+    }
+    int find(int u)
+    {
+        if(parent[u]!=u)
+            parent[u]=find(parent[u]);
+        return parent[u];
+    }
+    void merge(int x,int y)
+    {
+        if(rank[x]>rank[y])
+            parent[y]=x;
+        else
+            parent[x]=y;
+        if(rank[x]==rank[y])
+            rank[y]++;
+    }
+};
+bool compare(edge a, edge b)
+{
+    return a.weight<b.weight;
+}
+class graph
+{
+public:
+    int V,E;
+    vector<edge> edgeList;
+    graph()
+    {
+        cout<<"Enter the number of vertices:\n";
+        cin>>V;
+        cout<<"Enter the numberof edges:\n";
+        cin>>E;
+        cout<<"Enter the vertices constituting each edge. followd by the weight of that edge \n"
+            <<"Each vertex must be between 0 and "<<V-1<<", both 0 and "<<V-1<<" inclusive\n";
+        for(int i=0;i<E;i++)
+        {
+            int a,b,c;
+            cin>>a>>b>>c;
+            edge newEdge(a,b,c);
+            edgeList.push_back(newEdge);
+        }
+    }
+    void kruskalMST()
+    {
+        sort(edgeList.begin(),edgeList.end(),compare);
+        int numEdgesInMST=0;
+        vector<edge> MST;
+        disjoint_set sets(V);
+        for(int i=0;i<edgeList.size();i++)
+        {            
+            if(numEdgesInMST==(V-1))
+                break;
+            MST.push_back(edgeList[i]);
+            int a=sets.find(edgeList[i].src),b=sets.find(edgeList[i].dest);
+            //cout<<a<<' '<<b<<'\n';
+            if(a==b)
+                MST.pop_back();
+            else
+            {
+                //cout<<"a";
+                sets.merge(a,b);
+                numEdgesInMST++;
+            }
+        }
+        cout<<'\n';
+        cout<<"Edge:\tWeight:\n";
+        for(int i=0;i<MST.size();i++)
+            cout<<MST[i].src<<"-"<<MST[i].dest<<"\t"<<MST[i].weight<<'\n';
+    }
+};
+int main()
+{
+    graph g;
+    g.kruskalMST();
+    //cout<<"Succesful!\n";
+    return 0;
+}
